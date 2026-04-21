@@ -15,6 +15,29 @@ Persistent variable store for MCP agents. `mcp-vars` provides a small, durable J
 
 ### English
 
+Choose one of two setup paths:
+
+#### Option A. Docker Compose
+
+1. Build the image:
+
+```bash
+docker compose build
+```
+
+2. Run the MCP server:
+
+```bash
+docker compose run --rm mcp-vars
+```
+
+This starts `mcp-vars` as a `stdio` MCP process with:
+- the repository mounted to `/app`
+- `PROJECT_ROOT=/app`
+- persistent user-scope storage in a Docker volume
+
+#### Option B. Local Python environment
+
 1. Create a virtual environment and install dependencies:
 
 ```bash
@@ -52,7 +75,32 @@ make run-project
 - `$XDG_DATA_HOME/mcp-vars/variables.db`
 - or `~/.local/share/mcp-vars/variables.db`
 
+Note: `docker compose up -d` is not the primary workflow for this project. `mcp-vars` is a `stdio` MCP server, so the correct containerized entrypoint is `docker compose run --rm mcp-vars`.
+
 ### Русский
+
+Выберите один из двух способов запуска:
+
+#### Вариант A. Docker Compose
+
+1. Соберите образ:
+
+```bash
+docker compose build
+```
+
+2. Запустите MCP-сервер:
+
+```bash
+docker compose run --rm mcp-vars
+```
+
+Такой запуск стартует `mcp-vars` как `stdio` MCP-процесс:
+- репозиторий монтируется в `/app`
+- выставляется `PROJECT_ROOT=/app`
+- `user` scope хранится в постоянном Docker volume
+
+#### Вариант B. Локальное Python-окружение
 
 1. Создайте виртуальное окружение и установите зависимости:
 
@@ -90,6 +138,8 @@ make run-project
 `user` scope работает всегда и по умолчанию хранит данные в:
 - `$XDG_DATA_HOME/mcp-vars/variables.db`
 - или `~/.local/share/mcp-vars/variables.db`
+
+Важно: `docker compose up -d` здесь не основной сценарий. `mcp-vars` работает как `stdio` MCP-сервер, поэтому корректный контейнерный запуск выглядит как `docker compose run --rm mcp-vars`.
 
 ## Features / Возможности
 
@@ -339,6 +389,64 @@ You can also rename the registered server:
 
 ```bash
 python -m src.main install --server-name team-vars
+```
+
+## Docker / Docker Compose
+
+### English
+
+Files included in this repository:
+- `Dockerfile`
+- `docker-compose.yml`
+- `.dockerignore`
+- `docker-entrypoint.sh`
+
+Recommended commands:
+
+```bash
+docker compose build
+docker compose run --rm mcp-vars
+```
+
+The Compose service mounts the current repository into the container and persists `user` scope in the `mcp_vars_user_data` volume.
+
+If you want to use Docker directly from an MCP client, the equivalent command is:
+
+```bash
+docker run --rm -i \
+  -e PROJECT_ROOT=/app \
+  -e MCP_VARS_USER_DB_PATH=/data/user/variables.db \
+  -v "$PWD":/app \
+  -v mcp_vars_user_data:/data/user \
+  mcp-vars:local
+```
+
+### Русский
+
+В репозитории уже есть:
+- `Dockerfile`
+- `docker-compose.yml`
+- `.dockerignore`
+- `docker-entrypoint.sh`
+
+Рекомендуемые команды:
+
+```bash
+docker compose build
+docker compose run --rm mcp-vars
+```
+
+Compose-сервис монтирует текущий репозиторий внутрь контейнера и хранит `user` scope в volume `mcp_vars_user_data`.
+
+Если запускать контейнер напрямую из MCP-клиента, эквивалентная команда будет такой:
+
+```bash
+docker run --rm -i \
+  -e PROJECT_ROOT=/app \
+  -e MCP_VARS_USER_DB_PATH=/data/user/variables.db \
+  -v "$PWD":/app \
+  -v mcp_vars_user_data:/data/user \
+  mcp-vars:local
 ```
 
 ### Русский

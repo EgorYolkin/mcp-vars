@@ -23,6 +23,7 @@ def test_install_configs_updates_claude_json(tmp_path: Path) -> None:
     assert installed["mcpServers"]["other-server"]["command"] == "old"
     assert installed["mcpServers"]["mcp-vars"]["command"] == "/venv/bin/python"
     assert installed["mcpServers"]["mcp-vars"]["args"] == ["-u", "-m", "src.main"]
+    assert installed["mcpServers"]["mcp-vars"]["env"]["PROJECT_ROOT"] == str((tmp_path / "repo").resolve())
 
 
 def test_install_configs_updates_hermes_yaml(tmp_path: Path) -> None:
@@ -38,6 +39,7 @@ def test_install_configs_updates_hermes_yaml(tmp_path: Path) -> None:
     assert installed["mcp_servers"]["other-server"]["command"] == "old"
     assert installed["mcp_servers"]["mcp-vars"]["command"] == "/venv/bin/python"
     assert installed["mcp_servers"]["mcp-vars"]["cwd"] == str((tmp_path / "repo").resolve())
+    assert installed["mcp_servers"]["mcp-vars"]["env"]["PROJECT_ROOT"] == str((tmp_path / "repo").resolve())
 
 
 def test_install_configs_updates_codex_toml_and_removes_legacy_block(tmp_path: Path) -> None:
@@ -66,6 +68,8 @@ def test_install_configs_updates_codex_toml_and_removes_legacy_block(tmp_path: P
     assert 'command = "/venv/bin/python"' in installed
     assert 'args = ["-u", "-m", "src.main"]' in installed
     assert "startup_timeout_sec = 60" in installed
+    assert "[mcp_servers.mcp-vars.env]" in installed
+    assert f'PROJECT_ROOT = "{(tmp_path / "repo").resolve()}"' in installed
 
 
 def test_detect_client_targets_only_returns_existing_client_dirs(tmp_path: Path) -> None:

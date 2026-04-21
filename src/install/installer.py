@@ -118,11 +118,15 @@ def format_install_report(results: list[InstallResult]) -> str:
 
 
 def _build_server_config(repo_root: Path, python_executable: str) -> dict[str, Any]:
+    resolved_root = str(repo_root.resolve())
     return {
         "command": python_executable,
         "args": ["-u", "-m", "src.main"],
-        "cwd": str(repo_root.resolve()),
-        "env": {"PYTHONWARNINGS": "ignore::DeprecationWarning"},
+        "cwd": resolved_root,
+        "env": {
+            "PYTHONWARNINGS": "ignore::DeprecationWarning",
+            "PROJECT_ROOT": resolved_root,
+        },
     }
 
 
@@ -203,13 +207,20 @@ def _strip_codex_server_tables(text: str, aliases: tuple[str, ...]) -> str:
 
 def _render_codex_server_block(server_name: str, server_config: dict[str, Any]) -> str:
     args = ", ".join(_toml_string(value) for value in server_config["args"])
-    return (
+    rendered = (
         f"[mcp_servers.{server_name}]\n"
         f"command = {_toml_string(server_config['command'])}\n"
         f"args = [{args}]\n"
         f"cwd = {_toml_string(server_config['cwd'])}\n"
         f"startup_timeout_sec = 60\n"
     )
+    env_items = server_config.get("env", {})
+    if env_items:
+        rendered += "\n"
+        rendered += f"[mcp_servers.{server_name}.env]\n"
+        for key, value in env_items.items():
+            rendered += f"{key} = {_toml_string(value)}\n"
+    return rendered
 
 
 def _toml_string(value: str) -> str:
