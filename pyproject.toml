@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mcp-vars"
+version = "0.1.0"
+description = "Persistent variable store for MCP agents with user and project scopes."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastmcp==2.9.2",
+  "pydantic==2.11.7",
+  "python-dotenv==1.1.1",
+  "PyYAML==6.0.2",
+]
+
+[project.scripts]
+mcp-vars = "mcp_vars.main:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mcp_vars*"]
+
+[tool.setuptools.package-data]
+mcp_vars = ["storage/schema.sql"]

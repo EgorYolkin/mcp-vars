@@ -119,15 +119,24 @@ def format_install_report(results: list[InstallResult]) -> str:
 
 def _build_server_config(repo_root: Path, python_executable: str) -> dict[str, Any]:
     resolved_root = str(repo_root.resolve())
+    command, args = _resolve_launch_command(python_executable)
     return {
-        "command": python_executable,
-        "args": ["-u", "-m", "src.main"],
+        "command": command,
+        "args": args,
         "cwd": resolved_root,
         "env": {
             "PYTHONWARNINGS": "ignore::DeprecationWarning",
             "PROJECT_ROOT": resolved_root,
         },
     }
+
+
+def _resolve_launch_command(python_executable: str) -> tuple[str, list[str]]:
+    script_candidate = Path(python_executable).resolve().with_name("mcp-vars")
+    if script_candidate.exists():
+        return str(script_candidate), []
+
+    return python_executable, ["-u", "-m", "mcp_vars.main"]
 
 
 def _install_claude(config_path: Path, server_name: str, server_config: dict[str, Any]) -> None:

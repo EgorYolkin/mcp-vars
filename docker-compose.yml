@@ -12,7 +12,7 @@ services:
     volumes:
       - ./:/app
       - mcp_vars_user_data:/data/user
-    command: ["python", "-m", "src.main"]
+    command: ["mcp-vars"]
 
 volumes:
   mcp_vars_user_data:

@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from src.domain.models import VariableSetItem
-from src.storage.sqlite_store import SQLiteVariableStore
+from mcp_vars.domain.models import VariableSetItem
+from mcp_vars.storage.sqlite_store import SQLiteVariableStore
 
 
 def test_store_initializes_database_file(tmp_path: Path) -> None:

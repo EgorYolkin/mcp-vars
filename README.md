@@ -40,33 +40,51 @@ Important: `mcp-vars` is a `stdio` MCP server, so `docker compose run --rm mcp-v
 
 #### Option B. Local Python Environment
 
-Create a virtual environment and install dependencies:
+Create a virtual environment and install the package:
 
 ```bash
 python3 -m venv .env
 . .env/bin/activate
-pip install -r requirements.txt
+pip install .
+```
+
+If you are installing from local source inside a restricted container image, use:
+
+```bash
+pip install . --no-build-isolation
 ```
 
 Register the server in supported clients:
 
 ```bash
-make install-mcp
+mcp-vars install
 ```
 
 Run the server:
 
 ```bash
-make run
+mcp-vars
 ```
 
-Run with repository-local `project` scope enabled:
+If you want editable local development instead of a regular install:
 
 ```bash
-make run-project
+pip install -e .
 ```
 
-`project` scope requires `PROJECT_ROOT` or `MCP_VARS_PROJECT_DB_PATH`.  
+If you want `project` scope outside the installer, run with `PROJECT_ROOT`:
+
+```bash
+PROJECT_ROOT=$PWD mcp-vars
+```
+
+You can also install it with `pipx`:
+
+```bash
+pipx install .
+```
+
+`project` scope requires `PROJECT_ROOT` or `MCP_VARS_PROJECT_DB_PATH`.
 `user` scope defaults to:
 - `$XDG_DATA_HOME/mcp-vars/variables.db`
 - or `~/.local/share/mcp-vars/variables.db`
@@ -189,19 +207,19 @@ Supported config targets:
 Install for all detected clients:
 
 ```bash
-python -m src.main install
+mcp-vars install
 ```
 
 Install for selected clients only:
 
 ```bash
-python -m src.main install --clients codex claude
+mcp-vars install --clients codex claude
 ```
 
 Register under a custom server name:
 
 ```bash
-python -m src.main install --server-name team-vars
+mcp-vars install --server-name team-vars
 ```
 
 The generated config includes `PROJECT_ROOT`, so `project` scope works after installation without extra manual setup.
@@ -234,6 +252,40 @@ docker run --rm -i \
   mcp-vars:local
 ```
 
+### OpenClaw Integration
+
+If OpenClaw launches MCP servers as local subprocesses, the clean setup is to install `mcp-vars` inside the same OpenClaw image instead of trying to call Docker or SSH from inside OpenClaw.
+
+Files prepared for this flow:
+- `deploy/openclaw/Dockerfile`
+- `deploy/openclaw/openclaw-mcp-vars.sh`
+- `deploy/openclaw/mcp-config.json`
+
+What they do:
+- install Python and `mcp-vars` into the OpenClaw image
+- expose a wrapper command at `/usr/local/bin/openclaw-mcp-vars`
+- auto-populate `PROJECT_ROOT` from `OPENCLAW_WORKSPACE`, `WORKSPACE_DIR`, or current working directory
+- default `MCP_VARS_USER_DB_PATH` to `/var/lib/mcp-vars/user/variables.db`
+
+Build an OpenClaw image with `mcp-vars` embedded:
+
+```bash
+docker build -f deploy/openclaw/Dockerfile -t openclaw-with-mcp-vars .
+```
+
+Use this MCP config in OpenClaw:
+
+```json
+{
+  "vars": {
+    "command": "/usr/local/bin/openclaw-mcp-vars",
+    "args": []
+  }
+}
+```
+
+This is the intended production path for `stdio` usage in OpenClaw. It avoids Docker-in-Docker, SSH wrappers, and remote workspace coupling.
+
 ### Development
 
 Run tests:
@@ -245,8 +297,8 @@ make test-integration
 ```
 
 Main entry points:
-- `python -m src.main`
-- `python -m src.main install`
+- `mcp-vars`
+- `mcp-vars install`
 
 ### Notes
 
@@ -285,33 +337,51 @@ docker compose run --rm mcp-vars
 
 #### Вариант B. Локальное Python-окружение
 
-Создайте виртуальное окружение и установите зависимости:
+Создайте виртуальное окружение и установите пакет:
 
 ```bash
 python3 -m venv .env
 . .env/bin/activate
-pip install -r requirements.txt
+pip install .
+```
+
+Если пакет ставится из локального исходника внутри ограниченного контейнера, используйте:
+
+```bash
+pip install . --no-build-isolation
 ```
 
 Зарегистрируйте сервер в поддерживаемых клиентах:
 
 ```bash
-make install-mcp
+mcp-vars install
 ```
 
 Запустите сервер:
 
 ```bash
-make run
+mcp-vars
 ```
 
-Для локального `project` scope на уровне репозитория используйте:
+Если нужен editable-режим для локальной разработки:
 
 ```bash
-make run-project
+pip install -e .
 ```
 
-Для `project` scope нужен `PROJECT_ROOT` или `MCP_VARS_PROJECT_DB_PATH`.  
+Если нужен `project` scope вне инсталлятора, запускайте с `PROJECT_ROOT`:
+
+```bash
+PROJECT_ROOT=$PWD mcp-vars
+```
+
+Также можно установить пакет через `pipx`:
+
+```bash
+pipx install .
+```
+
+Для `project` scope нужен `PROJECT_ROOT` или `MCP_VARS_PROJECT_DB_PATH`.
 `user` scope по умолчанию хранится в:
 - `$XDG_DATA_HOME/mcp-vars/variables.db`
 - или `~/.local/share/mcp-vars/variables.db`
@@ -434,19 +504,19 @@ make run-project
 Установка во все найденные клиенты:
 
 ```bash
-python -m src.main install
+mcp-vars install
 ```
 
 Установка только в выбранные клиенты:
 
 ```bash
-python -m src.main install --clients codex claude
+mcp-vars install --clients codex claude
 ```
 
 Регистрация под другим именем:
 
 ```bash
-python -m src.main install --server-name team-vars
+mcp-vars install --server-name team-vars
 ```
 
 Сгенерированный конфиг автоматически включает `PROJECT_ROOT`, поэтому `project` scope после установки работает без дополнительной ручной настройки.
@@ -479,6 +549,40 @@ docker run --rm -i \
   mcp-vars:local
 ```
 
+### Интеграция с OpenClaw
+
+Если OpenClaw запускает MCP-серверы как локальные подпроцессы, правильный путь — установить `mcp-vars` внутрь того же образа OpenClaw, а не пытаться вызывать Docker или SSH изнутри OpenClaw.
+
+Для этого уже подготовлены файлы:
+- `deploy/openclaw/Dockerfile`
+- `deploy/openclaw/openclaw-mcp-vars.sh`
+- `deploy/openclaw/mcp-config.json`
+
+Что они делают:
+- устанавливают Python и `mcp-vars` внутрь образа OpenClaw
+- добавляют wrapper-команду `/usr/local/bin/openclaw-mcp-vars`
+- автоматически выставляют `PROJECT_ROOT` из `OPENCLAW_WORKSPACE`, `WORKSPACE_DIR` или текущей рабочей директории
+- по умолчанию используют `MCP_VARS_USER_DB_PATH=/var/lib/mcp-vars/user/variables.db`
+
+Сборка образа OpenClaw с уже встроенным `mcp-vars`:
+
+```bash
+docker build -f deploy/openclaw/Dockerfile -t openclaw-with-mcp-vars .
+```
+
+Конфиг MCP для OpenClaw:
+
+```json
+{
+  "vars": {
+    "command": "/usr/local/bin/openclaw-mcp-vars",
+    "args": []
+  }
+}
+```
+
+Это и есть правильный production-сценарий для `stdio` режима в OpenClaw. Он не требует Docker-in-Docker, SSH-обёрток и общего remote workspace.
+
 ### Разработка
 
 Запуск тестов:
@@ -490,8 +594,8 @@ make test-integration
 ```
 
 Основные точки входа:
-- `python -m src.main`
-- `python -m src.main install`
+- `mcp-vars`
+- `mcp-vars install`
 
 ### Примечания
 

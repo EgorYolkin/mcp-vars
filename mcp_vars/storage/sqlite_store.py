@@ -4,8 +4,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from src.domain.models import JSONValue, VariableRecord, VariableSetItem
-from src.storage.connection import initialize_database, sqlite_connection
+from mcp_vars.domain.models import JSONValue, VariableRecord, VariableSetItem
+from mcp_vars.storage.connection import initialize_database, sqlite_connection
 
 
 class SQLiteVariableStore:

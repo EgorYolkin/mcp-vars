@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from src.domain.errors import VariableError, VariableValidationError
-from src.domain.models import (
+from mcp_vars.domain.errors import VariableError, VariableValidationError
+from mcp_vars.domain.models import (
     JSONValue,
     SnapshotData,
     StorageScope,
@@ -14,7 +14,7 @@ from src.domain.models import (
     VariableListResult,
     VariableSetItem,
 )
-from src.domain.validation import (
+from mcp_vars.domain.validation import (
     ensure_object_value,
     shallow_merge,
     validate_expires_at,
@@ -22,7 +22,7 @@ from src.domain.validation import (
     validate_key,
     validate_scope,
 )
-from src.storage.store import VariableStore
+from mcp_vars.storage.store import VariableStore
 
 
 @dataclass(frozen=True)

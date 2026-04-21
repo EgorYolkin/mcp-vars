@@ -3,8 +3,8 @@ from __future__ import annotations
 from collections.abc import Callable
 from datetime import datetime
 
-from src.domain.models import JSONValue, VariableRecord, VariableSetItem
-from src.storage.store import VariableStore
+from mcp_vars.domain.models import JSONValue, VariableRecord, VariableSetItem
+from mcp_vars.storage.store import VariableStore
 
 
 class LazyVariableStore:

@@ -1,4 +1,4 @@
-from src.storage.lazy_store import LazyVariableStore
+from mcp_vars.storage.lazy_store import LazyVariableStore
 
 
 class DummyStore:

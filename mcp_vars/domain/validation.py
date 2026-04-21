@@ -4,8 +4,8 @@ import re
 from collections.abc import Mapping, Sequence
 from datetime import datetime
 
-from src.domain.errors import VariableValidationError
-from src.domain.models import JSONValue, StorageScope
+from mcp_vars.domain.errors import VariableValidationError
+from mcp_vars.domain.models import JSONValue, StorageScope
 
 KEY_PATTERN = re.compile(r"^[a-z0-9._-]+$")
 VALID_SCOPES = {"project", "user"}

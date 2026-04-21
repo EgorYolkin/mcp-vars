@@ -3,7 +3,7 @@ from pathlib import Path
 import json
 import yaml
 
-from src.install.installer import (
+from mcp_vars.install.installer import (
     detect_client_targets,
     install_configs,
 )
@@ -22,7 +22,7 @@ def test_install_configs_updates_claude_json(tmp_path: Path) -> None:
     assert results[0].status == "updated"
     assert installed["mcpServers"]["other-server"]["command"] == "old"
     assert installed["mcpServers"]["mcp-vars"]["command"] == "/venv/bin/python"
-    assert installed["mcpServers"]["mcp-vars"]["args"] == ["-u", "-m", "src.main"]
+    assert installed["mcpServers"]["mcp-vars"]["args"] == ["-u", "-m", "mcp_vars.main"]
     assert installed["mcpServers"]["mcp-vars"]["env"]["PROJECT_ROOT"] == str((tmp_path / "repo").resolve())
 
 
@@ -66,7 +66,7 @@ def test_install_configs_updates_codex_toml_and_removes_legacy_block(tmp_path: P
     assert "[mcp_servers.mcp-vars.tools.list_files]" not in installed
     assert "[mcp_servers.mcp-vars]" in installed
     assert 'command = "/venv/bin/python"' in installed
-    assert 'args = ["-u", "-m", "src.main"]' in installed
+    assert 'args = ["-u", "-m", "mcp_vars.main"]' in installed
     assert "startup_timeout_sec = 60" in installed
     assert "[mcp_servers.mcp-vars.env]" in installed
     assert f'PROJECT_ROOT = "{(tmp_path / "repo").resolve()}"' in installed
@@ -79,3 +79,26 @@ def test_detect_client_targets_only_returns_existing_client_dirs(tmp_path: Path)
     targets = detect_client_targets(home=tmp_path)
 
     assert [target.name for target in targets] == ["claude", "hermes"]
+
+
+def test_install_configs_prefers_installed_mcp_vars_script(tmp_path: Path) -> None:
+    home = tmp_path
+    claude_dir = home / ".claude"
+    claude_dir.mkdir(parents=True)
+    settings_path = claude_dir / "settings.json"
+    settings_path.write_text(json.dumps({"mcpServers": {}}))
+
+    fake_bin = tmp_path / "venv" / "bin"
+    fake_bin.mkdir(parents=True)
+    (fake_bin / "mcp-vars").write_text("#!/bin/sh\n")
+
+    install_configs(
+        clients=["claude"],
+        home=home,
+        repo_root=tmp_path / "repo",
+        python_executable=str(fake_bin / "python"),
+    )
+
+    installed = json.loads(settings_path.read_text())
+    assert installed["mcpServers"]["mcp-vars"]["command"] == str(fake_bin / "mcp-vars")
+    assert installed["mcpServers"]["mcp-vars"]["args"] == []

@@ -5,13 +5,13 @@ import sys
 
 from dotenv import load_dotenv
 
-from src.install.installer import (
+from mcp_vars.install.installer import (
     DEFAULT_SERVER_NAME,
     SUPPORTED_CLIENTS,
     format_install_report,
     install_configs,
 )
-from src.server.app import create_mcp
+from mcp_vars.server.app import create_mcp
 
 
 def main(argv: list[str] | None = None) -> int:

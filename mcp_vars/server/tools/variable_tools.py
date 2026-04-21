@@ -2,7 +2,7 @@ from typing import Any
 
 from fastmcp import FastMCP
 
-from src.domain.service import VariableService
+from mcp_vars.domain.service import VariableService
 
 
 def register_resources(mcp: FastMCP) -> None:

@@ -9,15 +9,15 @@ WORKDIR /app
 
 RUN addgroup --system app && adduser --system --ingroup app --home /app app
 
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY src ./src
+COPY pyproject.toml README.md requirements.txt ./
+COPY mcp_vars ./mcp_vars
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
+RUN pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir --no-build-isolation --no-deps .
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 USER app
 
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["python", "-m", "src.main"]
+CMD ["mcp-vars"]

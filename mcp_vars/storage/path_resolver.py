@@ -4,8 +4,8 @@ import os
 from pathlib import Path
 from typing import Mapping
 
-from src.domain.models import InitializationResult, StorageScope
-from src.domain.errors import VariableValidationError
+from mcp_vars.domain.models import InitializationResult, StorageScope
+from mcp_vars.domain.errors import VariableValidationError
 
 
 def resolve_db_path(

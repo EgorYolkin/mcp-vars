@@ -4,12 +4,12 @@ import os
 
 from fastmcp import FastMCP
 
-from src.domain.errors import VariableStorageError, VariableValidationError
-from src.domain.service import ScopedStores, VariableService
-from src.server.tools.variable_tools import register_resources, register_tools
-from src.storage.lazy_store import LazyVariableStore
-from src.storage.path_resolver import resolve_project_db_path, resolve_user_db_path
-from src.storage.sqlite_store import SQLiteVariableStore
+from mcp_vars.domain.errors import VariableStorageError, VariableValidationError
+from mcp_vars.domain.service import ScopedStores, VariableService
+from mcp_vars.server.tools.variable_tools import register_resources, register_tools
+from mcp_vars.storage.lazy_store import LazyVariableStore
+from mcp_vars.storage.path_resolver import resolve_project_db_path, resolve_user_db_path
+from mcp_vars.storage.sqlite_store import SQLiteVariableStore
 
 
 def create_mcp() -> FastMCP:

@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from src.domain.service import ScopedStores, VariableService
-from src.storage.sqlite_store import SQLiteVariableStore
+from mcp_vars.domain.service import ScopedStores, VariableService
+from mcp_vars.storage.sqlite_store import SQLiteVariableStore
 
 
 def test_service_routes_project_scope_to_project_store(tmp_path: Path) -> None:

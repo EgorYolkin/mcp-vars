@@ -1,6 +1,6 @@
 import sqlite3
 
-from src.storage.connection import _configure_connection
+from mcp_vars.storage.connection import _configure_connection
 
 
 class FakeConnection:

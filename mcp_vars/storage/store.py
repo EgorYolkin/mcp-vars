@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Protocol
 
-from src.domain.models import (
+from mcp_vars.domain.models import (
     InitializationResult,
     JSONValue,
     SnapshotData,

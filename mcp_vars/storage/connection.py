@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterator
 
-from src.domain.errors import VariableStorageError
+from mcp_vars.domain.errors import VariableStorageError
 
 SCHEMA_PATH = Path(__file__).with_name("schema.sql")
 

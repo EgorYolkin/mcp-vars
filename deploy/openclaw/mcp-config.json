@@ -1,0 +1,6 @@
+{
+  "vars": {
+    "command": "/usr/local/bin/openclaw-mcp-vars",
+    "args": []
+  }
+}

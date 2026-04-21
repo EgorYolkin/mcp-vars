@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from src.domain.errors import VariableValidationError
-from src.storage.path_resolver import (
+from mcp_vars.domain.errors import VariableValidationError
+from mcp_vars.storage.path_resolver import (
     initialize_project_storage,
     initialize_user_storage,
     resolve_db_path,
