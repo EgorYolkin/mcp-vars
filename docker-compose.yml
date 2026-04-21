@@ -1,0 +1,18 @@
+services:
+  mcp-vars:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mcp-vars:local
+    stdin_open: true
+    tty: true
+    environment:
+      PROJECT_ROOT: /app
+      MCP_VARS_USER_DB_PATH: /data/user/variables.db
+    volumes:
+      - ./:/app
+      - mcp_vars_user_data:/data/user
+    command: ["python", "-m", "src.main"]
+
+volumes:
+  mcp_vars_user_data:
