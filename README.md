@@ -4,28 +4,28 @@
 [![MCP](https://img.shields.io/badge/MCP-server-111111)](https://modelcontextprotocol.io/)
 [![FastMCP](https://img.shields.io/badge/FastMCP-2.9.2-0A7B83)](https://github.com/prefecthq/fastmcp)
 [![SQLite](https://img.shields.io/badge/storage-SQLite-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org/index.html)
-[![Scopes](https://img.shields.io/badge/scopes-user%20%7C%20project-4C1)](#features--vozmozhnosti)
-[![Clients](https://img.shields.io/badge/clients-Codex%20%7C%20Claude%20%7C%20Hermes%20%7C%20Qwen-6A5ACD)](#quick-start--bystraya-ustanovka)
+[![Scopes](https://img.shields.io/badge/scopes-user%20%7C%20project-4C1)](#english)
+[![Clients](https://img.shields.io/badge/clients-Codex%20%7C%20Claude%20%7C%20Hermes%20%7C%20Qwen-6A5ACD)](#english)
 
-Persistent variable store for MCP agents. `mcp-vars` provides a small, durable JSON-native state layer on top of SQLite so agents can remember values between tool calls, sessions, and parallel runs.
+[English](#english) | [Русский](#russian)
 
-`mcp-vars` — это MCP-сервер с постоянным хранилищем переменных для агентов. Он сохраняет небольшие JSON-совместимые значения в SQLite и отдаёт их через простые инструменты для `project` и `user` scope.
+## English
 
-## Quick Start / Быстрая установка
+`mcp-vars` is a persistent variable store for MCP agents. It keeps small JSON-native values in SQLite and exposes them through simple tools so agents can preserve state across tool calls, sessions, and parallel runs.
 
-### English
+### Quick Start
 
-Choose one of two setup paths:
+Choose one of two setup paths.
 
 #### Option A. Docker Compose
 
-1. Build the image:
+Build the image:
 
 ```bash
 docker compose build
 ```
 
-2. Run the MCP server:
+Run the MCP server:
 
 ```bash
 docker compose run --rm mcp-vars
@@ -36,9 +36,11 @@ This starts `mcp-vars` as a `stdio` MCP process with:
 - `PROJECT_ROOT=/app`
 - persistent user-scope storage in a Docker volume
 
-#### Option B. Local Python environment
+Important: `mcp-vars` is a `stdio` MCP server, so `docker compose run --rm mcp-vars` is the correct workflow. `docker compose up -d` is not the primary usage mode.
 
-1. Create a virtual environment and install dependencies:
+#### Option B. Local Python Environment
+
+Create a virtual environment and install dependencies:
 
 ```bash
 python3 -m venv .env
@@ -46,117 +48,41 @@ python3 -m venv .env
 pip install -r requirements.txt
 ```
 
-2. Register the server in supported clients:
+Register the server in supported clients:
 
 ```bash
 make install-mcp
 ```
 
-This installs `mcp-vars` into detected client configs for:
-- Codex
-- Claude
-- Hermes
-- Qwen
-
-3. Run the server:
+Run the server:
 
 ```bash
 make run
 ```
 
-4. Enable `project` scope when you want repository-local storage:
+Run with repository-local `project` scope enabled:
 
 ```bash
 make run-project
 ```
 
 `project` scope requires `PROJECT_ROOT` or `MCP_VARS_PROJECT_DB_PATH`.  
-`user` scope always works and defaults to:
+`user` scope defaults to:
 - `$XDG_DATA_HOME/mcp-vars/variables.db`
 - or `~/.local/share/mcp-vars/variables.db`
 
-Note: `docker compose up -d` is not the primary workflow for this project. `mcp-vars` is a `stdio` MCP server, so the correct containerized entrypoint is `docker compose run --rm mcp-vars`.
+### Features
 
-### Русский
-
-Выберите один из двух способов запуска:
-
-#### Вариант A. Docker Compose
-
-1. Соберите образ:
-
-```bash
-docker compose build
-```
-
-2. Запустите MCP-сервер:
-
-```bash
-docker compose run --rm mcp-vars
-```
-
-Такой запуск стартует `mcp-vars` как `stdio` MCP-процесс:
-- репозиторий монтируется в `/app`
-- выставляется `PROJECT_ROOT=/app`
-- `user` scope хранится в постоянном Docker volume
-
-#### Вариант B. Локальное Python-окружение
-
-1. Создайте виртуальное окружение и установите зависимости:
-
-```bash
-python3 -m venv .env
-. .env/bin/activate
-pip install -r requirements.txt
-```
-
-2. Зарегистрируйте сервер в поддерживаемых клиентах:
-
-```bash
-make install-mcp
-```
-
-Команда добавляет `mcp-vars` в найденные конфиги:
-- Codex
-- Claude
-- Hermes
-- Qwen
-
-3. Запустите сервер:
-
-```bash
-make run
-```
-
-4. Для локального хранения на уровне репозитория запускайте сервер с `project` scope:
-
-```bash
-make run-project
-```
-
-Для `project` scope нужен `PROJECT_ROOT` или `MCP_VARS_PROJECT_DB_PATH`.  
-`user` scope работает всегда и по умолчанию хранит данные в:
-- `$XDG_DATA_HOME/mcp-vars/variables.db`
-- или `~/.local/share/mcp-vars/variables.db`
-
-Важно: `docker compose up -d` здесь не основной сценарий. `mcp-vars` работает как `stdio` MCP-сервер, поэтому корректный контейнерный запуск выглядит как `docker compose run --rm mcp-vars`.
-
-## Features / Возможности
-
-### English
-
-- Persistent storage in SQLite instead of ephemeral in-memory state.
-- Two scopes:
-  `user` for shared personal state and `project` for repository-local state.
-- JSON-native values only: string, number, boolean, `null`, arrays, and objects.
-- Simple tool surface:
-  `variable_get`, `variable_set`, `variable_patch`, `variable_delete`, `variable_list`.
-- Safe partial updates through shallow object patching.
-- Key validation with dot-notation style keys such as `project.goal` or `session.counter`.
-- Automatic client config installation for Codex, Claude, Hermes, and Qwen.
+- Persistent storage in SQLite instead of in-memory state.
+- Two scopes: `user` for shared personal state and `project` for repository-local state.
+- JSON-native values only: strings, numbers, booleans, `null`, arrays, and objects.
+- Small tool surface: `variable_get`, `variable_set`, `variable_patch`, `variable_delete`, `variable_list`.
+- Shallow patching for object values.
+- Dot-notation key validation such as `project.goal` or `session.counter`.
+- Installer support for Codex, Claude, Hermes, and Qwen.
 - MCP resource `instructions://usage` for lightweight usage guidance.
 
-Typical response shape:
+Typical response:
 
 ```json
 {
@@ -170,56 +96,27 @@ Typical response shape:
 
 Tool overview:
 
-| Tool | What it does |
+| Tool | Description |
 | --- | --- |
 | `variable_get` | Read one value by key |
 | `variable_set` | Create or overwrite a value |
 | `variable_patch` | Shallow-merge object fields |
 | `variable_delete` | Remove one key |
-| `variable_list` | Discover keys, optionally by prefix |
+| `variable_list` | List keys, optionally by prefix |
 
-### Русский
+### Use Cases
 
-- Данные хранятся в SQLite, а не в памяти процесса.
-- Два уровня изоляции:
-  `user` для персонального общего состояния и `project` для состояния конкретного репозитория.
-- Поддерживаются только JSON-native значения: строка, число, булево значение, `null`, массивы и объекты.
-- Небольшой и понятный набор инструментов:
-  `variable_get`, `variable_set`, `variable_patch`, `variable_delete`, `variable_list`.
-- Частичные обновления объектов через shallow merge.
-- Проверка ключей с dot-notation, например `project.goal` или `session.counter`.
-- Автоматическая регистрация сервера в Codex, Claude, Hermes и Qwen.
-- MCP-ресурс `instructions://usage` с краткими правилами использования.
+#### 1. Development Workflow Memory
 
-Типичный ответ инструмента:
+Store working context that agents should not ask for on every step.
 
-```json
-{
-  "status": "ok",
-  "key": "project.goal",
-  "value": "ship",
-  "message": "Loaded variable 'project.goal'.",
-  "scope": "project"
-}
-```
+Example keys:
+- `project.current_ticket`
+- `project.default_branch`
+- `project.release.target`
+- `project.feature_flags`
 
-Инструменты:
-
-| Tool | Назначение |
-| --- | --- |
-| `variable_get` | Прочитать значение по ключу |
-| `variable_set` | Создать или перезаписать значение |
-| `variable_patch` | Частично обновить объект |
-| `variable_delete` | Удалить один ключ |
-| `variable_list` | Посмотреть ключи, при необходимости по префиксу |
-
-## Use Cases / Юзкейсы
-
-### 1. Development workflow memory / Память для разработки
-
-**English**
-
-Store working context that agents should not ask for on every step:
+Example value:
 
 ```json
 {
@@ -229,35 +126,18 @@ Store working context that agents should not ask for on every step:
 }
 ```
 
-Good keys:
-- `project.current_ticket`
-- `project.default_branch`
-- `project.release.target`
-- `project.feature_flags`
+#### 2. Personal Assistant State
 
-**Русский**
+Use `user` scope for durable preferences and personal context.
 
-Храните рабочий контекст, который агенту нужен постоянно, но который не должен жить в коде:
+Example keys:
+- `profile.preferred_language`
+- `profile.timezone`
+- `profile.work_hours`
+- `shopping.current_list`
+- `planning.weekly_goal`
 
-```json
-{
-  "current_ticket": "LIN-142",
-  "default_branch": "main",
-  "staging_url": "https://staging.example.com"
-}
-```
-
-Подходящие ключи:
-- `project.current_ticket`
-- `project.default_branch`
-- `project.release.target`
-- `project.feature_flags`
-
-### 2. Personal assistant state / Состояние персонального ассистента
-
-**English**
-
-Use `user` scope for preferences and durable personal context:
+Example value:
 
 ```json
 {
@@ -267,64 +147,19 @@ Use `user` scope for preferences and durable personal context:
 }
 ```
 
-Good keys:
-- `profile.preferred_language`
-- `profile.timezone`
-- `profile.work_hours`
-- `shopping.current_list`
-- `planning.weekly_goal`
+#### 3. Cross-Agent Coordination
 
-**Русский**
+Parallel agents can exchange lightweight state through shared keys instead of rewriting files.
 
-Используйте `user` scope для предпочтений и устойчивого персонального контекста:
-
-```json
-{
-  "preferred_language": "ru",
-  "timezone": "Asia/Yekaterinburg",
-  "response_style": "direct"
-}
-```
-
-Подходящие ключи:
-- `profile.preferred_language`
-- `profile.timezone`
-- `profile.work_hours`
-- `shopping.current_list`
-- `planning.weekly_goal`
-
-### 3. Cross-agent coordination / Координация между агентами
-
-**English**
-
-Parallel agents can exchange lightweight state through shared keys instead of rewriting files:
+Example keys:
 - `session.plan.status`
 - `session.research.completed`
 - `session.review.blockers`
 - `session.counter`
 
-This is useful when one agent collects data and another agent consumes or updates it later.
+#### 4. Project-Local Automation
 
-**Русский**
-
-Параллельные агенты могут обмениваться небольшим состоянием через общие ключи, не переписывая файлы:
-- `session.plan.status`
-- `session.research.completed`
-- `session.review.blockers`
-- `session.counter`
-
-Это удобно, когда один агент собирает данные, а другой затем читает или обновляет их.
-
-### 4. Project-local automation / Автоматизация внутри проекта
-
-**English**
-
-`project` scope is useful for repository-specific values that must not leak into other projects:
-- deployment target
-- local MCP file keys
-- test accounts
-- migration checkpoints
-- generated artifact metadata
+Use `project` scope for repository-specific values that must not leak into other projects.
 
 Example keys:
 - `deploy.target`
@@ -332,46 +167,18 @@ Example keys:
 - `tests.demo_account`
 - `db.last_migration`
 
-**Русский**
+#### 5. What `mcp-vars` Is Not For
 
-`project` scope подходит для данных конкретного репозитория, которые не должны пересекаться с другими проектами:
-- цель деплоя
-- локальные ключи MCP и Figma
-- тестовые аккаунты
-- контрольные точки миграций
-- метаданные сгенерированных артефактов
-
-Примеры ключей:
-- `deploy.target`
-- `figma.file_key`
-- `tests.demo_account`
-- `db.last_migration`
-
-### 5. What this server is not for / Для чего сервер не подходит
-
-**English**
-
-Do not use `mcp-vars` for:
+Do not use this server for:
 - secrets and API keys
 - large blobs or binary data
 - long documents and logs
-- analytics queries
+- analytics workloads
 - replacing a real database
 
-**Русский**
+### Client Installation
 
-Не используйте `mcp-vars` для:
-- секретов и API-ключей
-- больших blob-данных и бинарных файлов
-- длинных документов и логов
-- аналитических запросов
-- замены полноценной базы данных
-
-## Client Installation Details / Детали установки для клиентов
-
-### English
-
-The installer patches existing config directories only. If a client directory does not exist, that client is skipped.
+The installer updates existing client config directories only. If a client directory does not exist, it is skipped.
 
 Supported config targets:
 - Codex: `~/.codex/config.toml`
@@ -379,23 +186,29 @@ Supported config targets:
 - Hermes: `~/.hermes/config.yaml`
 - Qwen: `~/.qwen/settings.json`
 
-You can limit installation to specific clients:
+Install for all detected clients:
+
+```bash
+python -m src.main install
+```
+
+Install for selected clients only:
 
 ```bash
 python -m src.main install --clients codex claude
 ```
 
-You can also rename the registered server:
+Register under a custom server name:
 
 ```bash
 python -m src.main install --server-name team-vars
 ```
 
-## Docker / Docker Compose
+The generated config includes `PROJECT_ROOT`, so `project` scope works after installation without extra manual setup.
 
-### English
+### Docker
 
-Files included in this repository:
+Included files:
 - `Dockerfile`
 - `docker-compose.yml`
 - `.dockerignore`
@@ -408,9 +221,9 @@ docker compose build
 docker compose run --rm mcp-vars
 ```
 
-The Compose service mounts the current repository into the container and persists `user` scope in the `mcp_vars_user_data` volume.
+The Compose service mounts the current repository into the container and stores `user` scope in the `mcp_vars_user_data` volume.
 
-If you want to use Docker directly from an MCP client, the equivalent command is:
+Equivalent direct `docker run` command:
 
 ```bash
 docker run --rm -i \
@@ -421,7 +234,224 @@ docker run --rm -i \
   mcp-vars:local
 ```
 
-### Русский
+### Development
+
+Run tests:
+
+```bash
+make test
+make test-unit
+make test-integration
+```
+
+Main entry points:
+- `python -m src.main`
+- `python -m src.main install`
+
+### Notes
+
+- Keys must match `[a-z0-9._-]+`.
+- `variable_patch` works only when the current value is an object.
+- If `project` scope is unavailable, the server returns a validation error instead of silently falling back to `user`.
+
+## Russian
+
+`mcp-vars` — это MCP-сервер с постоянным хранилищем переменных для агентов. Он сохраняет небольшие JSON-совместимые значения в SQLite и отдаёт их через простой набор инструментов, чтобы агент мог сохранять состояние между вызовами tools, сессиями и параллельными запусками.
+
+### Быстрый старт
+
+Выберите один из двух способов запуска.
+
+#### Вариант A. Docker Compose
+
+Соберите образ:
+
+```bash
+docker compose build
+```
+
+Запустите MCP-сервер:
+
+```bash
+docker compose run --rm mcp-vars
+```
+
+Такой запуск стартует `mcp-vars` как `stdio` MCP-процесс:
+- репозиторий монтируется в `/app`
+- выставляется `PROJECT_ROOT=/app`
+- `user` scope хранится в постоянном Docker volume
+
+Важно: `mcp-vars` работает как `stdio` MCP-сервер, поэтому правильный сценарий запуска через Compose — `docker compose run --rm mcp-vars`. `docker compose up -d` здесь не основной режим работы.
+
+#### Вариант B. Локальное Python-окружение
+
+Создайте виртуальное окружение и установите зависимости:
+
+```bash
+python3 -m venv .env
+. .env/bin/activate
+pip install -r requirements.txt
+```
+
+Зарегистрируйте сервер в поддерживаемых клиентах:
+
+```bash
+make install-mcp
+```
+
+Запустите сервер:
+
+```bash
+make run
+```
+
+Для локального `project` scope на уровне репозитория используйте:
+
+```bash
+make run-project
+```
+
+Для `project` scope нужен `PROJECT_ROOT` или `MCP_VARS_PROJECT_DB_PATH`.  
+`user` scope по умолчанию хранится в:
+- `$XDG_DATA_HOME/mcp-vars/variables.db`
+- или `~/.local/share/mcp-vars/variables.db`
+
+### Возможности
+
+- Постоянное хранение данных в SQLite вместо памяти процесса.
+- Два scope: `user` для общего персонального состояния и `project` для состояния конкретного репозитория.
+- Поддерживаются только JSON-native значения: строки, числа, булевы значения, `null`, массивы и объекты.
+- Небольшой набор инструментов: `variable_get`, `variable_set`, `variable_patch`, `variable_delete`, `variable_list`.
+- Частичное обновление объектов через shallow merge.
+- Валидация ключей в формате dot-notation, например `project.goal` или `session.counter`.
+- Установка в конфиги Codex, Claude, Hermes и Qwen.
+- MCP-ресурс `instructions://usage` с краткими правилами использования.
+
+Типичный ответ:
+
+```json
+{
+  "status": "ok",
+  "key": "project.goal",
+  "value": "ship",
+  "message": "Loaded variable 'project.goal'.",
+  "scope": "project"
+}
+```
+
+Обзор инструментов:
+
+| Tool | Назначение |
+| --- | --- |
+| `variable_get` | Прочитать одно значение по ключу |
+| `variable_set` | Создать или перезаписать значение |
+| `variable_patch` | Частично обновить поля объекта |
+| `variable_delete` | Удалить один ключ |
+| `variable_list` | Показать ключи, при необходимости по префиксу |
+
+### Юзкейсы
+
+#### 1. Память для процесса разработки
+
+Храните рабочий контекст, который агенту нужен постоянно и который не должен каждый раз заново извлекаться из чата, тикетов или файлов.
+
+Примеры ключей:
+- `project.current_ticket`
+- `project.default_branch`
+- `project.release.target`
+- `project.feature_flags`
+
+Пример значения:
+
+```json
+{
+  "current_ticket": "LIN-142",
+  "default_branch": "main",
+  "staging_url": "https://staging.example.com"
+}
+```
+
+#### 2. Состояние персонального ассистента
+
+Используйте `user` scope для предпочтений и долгоживущего персонального контекста.
+
+Примеры ключей:
+- `profile.preferred_language`
+- `profile.timezone`
+- `profile.work_hours`
+- `shopping.current_list`
+- `planning.weekly_goal`
+
+Пример значения:
+
+```json
+{
+  "preferred_language": "ru",
+  "timezone": "Asia/Yekaterinburg",
+  "response_style": "direct"
+}
+```
+
+#### 3. Координация между агентами
+
+Параллельные агенты могут обмениваться небольшим состоянием через общие ключи, не создавая и не переписывая промежуточные файлы.
+
+Примеры ключей:
+- `session.plan.status`
+- `session.research.completed`
+- `session.review.blockers`
+- `session.counter`
+
+#### 4. Автоматизация внутри проекта
+
+`project` scope подходит для данных конкретного репозитория, которые не должны пересекаться с другими проектами.
+
+Примеры ключей:
+- `deploy.target`
+- `figma.file_key`
+- `tests.demo_account`
+- `db.last_migration`
+
+#### 5. Для чего `mcp-vars` не подходит
+
+Не используйте сервер для:
+- секретов и API-ключей
+- больших blob-данных и бинарных файлов
+- длинных документов и логов
+- аналитических нагрузок
+- замены полноценной базы данных
+
+### Установка в клиенты
+
+Инсталлятор обновляет только уже существующие директории конфигурации клиентов. Если директория клиента не найдена, этот клиент пропускается.
+
+Поддерживаемые конфиги:
+- Codex: `~/.codex/config.toml`
+- Claude: `~/.claude/settings.json`
+- Hermes: `~/.hermes/config.yaml`
+- Qwen: `~/.qwen/settings.json`
+
+Установка во все найденные клиенты:
+
+```bash
+python -m src.main install
+```
+
+Установка только в выбранные клиенты:
+
+```bash
+python -m src.main install --clients codex claude
+```
+
+Регистрация под другим именем:
+
+```bash
+python -m src.main install --server-name team-vars
+```
+
+Сгенерированный конфиг автоматически включает `PROJECT_ROOT`, поэтому `project` scope после установки работает без дополнительной ручной настройки.
+
+### Docker
 
 В репозитории уже есть:
 - `Dockerfile`
@@ -438,7 +468,7 @@ docker compose run --rm mcp-vars
 
 Compose-сервис монтирует текущий репозиторий внутрь контейнера и хранит `user` scope в volume `mcp_vars_user_data`.
 
-Если запускать контейнер напрямую из MCP-клиента, эквивалентная команда будет такой:
+Эквивалентная команда `docker run`:
 
 ```bash
 docker run --rm -i \
@@ -449,45 +479,7 @@ docker run --rm -i \
   mcp-vars:local
 ```
 
-### Русский
-
-Инсталлятор изменяет только уже существующие каталоги конфигурации. Если каталог клиента не найден, этот клиент пропускается.
-
-Поддерживаемые пути конфигов:
-- Codex: `~/.codex/config.toml`
-- Claude: `~/.claude/settings.json`
-- Hermes: `~/.hermes/config.yaml`
-- Qwen: `~/.qwen/settings.json`
-
-Можно установить сервер только для выбранных клиентов:
-
-```bash
-python -m src.main install --clients codex claude
-```
-
-При необходимости можно сменить имя регистрируемого сервера:
-
-```bash
-python -m src.main install --server-name team-vars
-```
-
-## Development / Разработка
-
-### English
-
-Run tests:
-
-```bash
-make test
-make test-unit
-make test-integration
-```
-
-Project entry points:
-- `python -m src.main`
-- `python -m src.main install`
-
-### Русский
+### Разработка
 
 Запуск тестов:
 
@@ -501,16 +493,8 @@ make test-integration
 - `python -m src.main`
 - `python -m src.main install`
 
-## Notes / Примечания
-
-### English
-
-- Keys must match `[a-z0-9._-]+`.
-- `variable_patch` works only when the current value is an object.
-- If `project` scope is unavailable, the server returns a validation error instead of silently falling back to `user`.
-
-### Русский
+### Примечания
 
 - Ключи должны соответствовать шаблону `[a-z0-9._-]+`.
 - `variable_patch` работает только если текущее значение является объектом.
-- Если `project` scope не инициализирован, сервер вернёт ошибку валидации, а не будет молча переключаться на `user`.
+- Если `project` scope недоступен, сервер вернёт ошибку валидации, а не будет молча переключаться на `user`.
