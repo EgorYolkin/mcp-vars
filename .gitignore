@@ -3,26 +3,11 @@
 venv/
 env/
 
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
+node_modules/
+dist/
+coverage/
+.vitest/
 
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.pyre/
-.tox/
-.nox/
-
-.coverage
-.coverage.*
-coverage.xml
-htmlcov/
-
-*.db
-*.sqlite
-*.sqlite3
 .mcp-vars/
 
 .DS_Store

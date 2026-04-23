@@ -1,0 +1,50 @@
+{
+  "name": "mcp-vars",
+  "version": "0.1.0",
+  "description": "Persistent variable store for MCP agents with user and project scopes.",
+  "type": "commonjs",
+  "bin": {
+    "mcp-vars": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "dotenv": "^16.6.1",
+    "js-yaml": "^4.1.0",
+    "zod": "^4.0.5"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^24.0.13",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  },
+  "tsup": {
+    "entry": [
+      "src/cli.ts",
+      "src/index.ts"
+    ],
+    "format": [
+      "cjs"
+    ],
+    "clean": true,
+    "sourcemap": true,
+    "splitting": false,
+    "dts": false,
+    "target": "node20"
+  }
+}

@@ -11,9 +11,9 @@ if [ -z "${PROJECT_ROOT:-}" ]; then
   fi
 fi
 
-: "${MCP_VARS_USER_DB_PATH:=/var/lib/mcp-vars/user/variables.db}"
+: "${MCP_VARS_USER_DB_PATH:=/var/lib/mcp-vars/user/variables.json}"
 
 export PROJECT_ROOT
 export MCP_VARS_USER_DB_PATH
 
-exec mcp-vars "$@"
+exec node /opt/mcp-vars/dist/cli.js "$@"

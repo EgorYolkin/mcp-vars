@@ -8,11 +8,10 @@ services:
     tty: true
     environment:
       PROJECT_ROOT: /app
-      MCP_VARS_USER_DB_PATH: /data/user/variables.db
+      MCP_VARS_USER_DB_PATH: /data/user/variables.json
     volumes:
-      - ./:/app
       - mcp_vars_user_data:/data/user
-    command: ["mcp-vars"]
+    command: ["node", "/app/dist/cli.js"]
 
 volumes:
   mcp_vars_user_data:

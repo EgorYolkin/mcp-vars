@@ -1,21 +1,25 @@
-.PHONY: install-mcp run run-project test test-unit test-integration
+.PHONY: install-mcp run run-project build test test-unit test-integration
 
-PYTHON ?= $(if $(wildcard .env/bin/python),.env/bin/python,python3)
+NODE ?= node
+NPM ?= npm
 
 install-mcp:
-	$(PYTHON) -m mcp_vars.main install
+	npx -y tsx src/cli.ts install
 
 run:
-	$(PYTHON) -m mcp_vars.main
+	npx -y tsx src/cli.ts
 
 run-project:
-	PROJECT_ROOT=$(CURDIR) $(PYTHON) -m mcp_vars.main
+	PROJECT_ROOT=$(CURDIR) npx -y tsx src/cli.ts
+
+build:
+	$(NPM) run build
 
 test:
-	$(PYTHON) -m pytest
+	$(NPM) test
 
 test-unit:
-	$(PYTHON) -m pytest tests/unit
+	$(NPM) test -- tests/unit
 
 test-integration:
-	$(PYTHON) -m pytest tests/integration
+	$(NPM) test -- tests/integration
