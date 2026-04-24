@@ -22,9 +22,11 @@ export function createMcp(env: NodeJS.ProcessEnv = process.env): McpServer {
     },
   );
 
-  const service = new VariableService(buildScopedStores(env));
+  const service = new VariableService(buildScopedStores(env), {
+    allowSecretLikeValues: env.MCP_VARS_ALLOW_SECRET_LIKE_VALUES === "true",
+  });
   registerTools(server, service);
-  registerResources(server);
+  registerResources(server, service);
   return server;
 }
 

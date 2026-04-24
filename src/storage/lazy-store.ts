@@ -1,4 +1,4 @@
-import { JSONValue, VariableRecord, VariableSetItem } from "../domain/models";
+import { JSONValue, VariableRecord, VariableSetItem, VariableSetOptions } from "../domain/models";
 import { VariableStore } from "./store";
 
 export class LazyVariableStore implements VariableStore {
@@ -16,9 +16,9 @@ export class LazyVariableStore implements VariableStore {
   async set(
     key: string,
     value: JSONValue,
-    expiresAt?: string | null,
+    options?: VariableSetOptions,
   ): Promise<VariableRecord> {
-    return this.getStore().set(key, value, expiresAt);
+    return this.getStore().set(key, value, options);
   }
 
   async delete(key: string): Promise<VariableRecord | null> {
@@ -43,6 +43,10 @@ export class LazyVariableStore implements VariableStore {
 
   async importSnapshot(data: Record<string, JSONValue>): Promise<Record<string, JSONValue>> {
     return this.getStore().importSnapshot(data);
+  }
+
+  async cleanupExpired(now?: Date): Promise<string[]> {
+    return this.getStore().cleanupExpired(now);
   }
 
   private getStore(): VariableStore {

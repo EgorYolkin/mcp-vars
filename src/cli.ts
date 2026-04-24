@@ -5,6 +5,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 
 import {
   DEFAULT_SERVER_NAME,
+  SupportedClient,
   SUPPORTED_CLIENTS,
   formatInstallReport,
   installConfigs,
@@ -13,7 +14,7 @@ import { createMcp } from "./server/app";
 
 interface ParsedArgs {
   command: "install" | "run";
-  clients: string[];
+  clients: SupportedClient[];
   serverName: string;
 }
 
@@ -53,7 +54,10 @@ function parseArgs(argv: string[]): ParsedArgs {
     if (token === "--clients") {
       clients = [];
       for (index += 1; index < argv.length && !argv[index].startsWith("--"); index += 1) {
-        clients.push(argv[index]);
+        const client = argv[index];
+        if (isSupportedClient(client)) {
+          clients.push(client);
+        }
       }
       index -= 1;
       continue;
@@ -69,6 +73,10 @@ function parseArgs(argv: string[]): ParsedArgs {
     clients,
     serverName,
   };
+}
+
+function isSupportedClient(value: string): value is SupportedClient {
+  return (SUPPORTED_CLIENTS as readonly string[]).includes(value);
 }
 
 void main().then(

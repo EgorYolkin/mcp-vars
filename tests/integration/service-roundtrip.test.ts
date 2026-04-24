@@ -36,13 +36,13 @@ describe("service integration", () => {
 
     expect(setProject.status).toBe("ok");
     expect(setUser.status).toBe("ok");
-    expect(listProject.value).toEqual({
+    expect(listProject.value).toMatchObject({
       scope: "project",
-      items: [{ key: "project.goal", value: "ship" }],
+      items: [{ key: "project.goal", value: "ship", namespace: "shared", revision: 1 }],
     });
-    expect(listUser.value).toEqual({
+    expect(listUser.value).toMatchObject({
       scope: "user",
-      items: [{ key: "profile.language", value: "ru" }],
+      items: [{ key: "profile.language", value: "ru", namespace: "shared", revision: 1 }],
     });
   });
 });

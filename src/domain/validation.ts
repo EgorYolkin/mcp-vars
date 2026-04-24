@@ -2,6 +2,7 @@ import { JSONValue, StorageScope } from "./models";
 import { VariableValidationError } from "./errors";
 
 const KEY_PATTERN = /^[a-z0-9._-]+$/;
+const TAG_PATTERN = /^[a-z0-9._-]+$/;
 const VALID_SCOPES = new Set<StorageScope>(["project", "user"]);
 
 export function validateScope(scope?: string | null): StorageScope {
@@ -24,6 +25,41 @@ export function validateKey(key: string): string {
     );
   }
   return key;
+}
+
+export function validateNamespace(namespace?: string | null): string | null {
+  if (namespace == null) {
+    return null;
+  }
+  return validateKey(namespace);
+}
+
+export function validateOwner(owner?: string | null): string | null {
+  if (owner == null) {
+    return null;
+  }
+  if (!owner || owner.length > 120 || !TAG_PATTERN.test(owner)) {
+    throw new VariableValidationError(
+      "owner must match pattern [a-z0-9._-] and be 120 characters or fewer.",
+    );
+  }
+  return owner;
+}
+
+export function validateTags(tags?: string[] | null): string[] {
+  if (tags == null) {
+    return [];
+  }
+  const unique = new Set<string>();
+  for (const tag of tags) {
+    if (!tag || tag.length > 80 || !TAG_PATTERN.test(tag)) {
+      throw new VariableValidationError(
+        "tags must match pattern [a-z0-9._-] and be 80 characters or fewer.",
+      );
+    }
+    unique.add(tag);
+  }
+  return [...unique].sort((left, right) => left.localeCompare(right));
 }
 
 export function validateJsonValue(value: unknown): JSONValue {

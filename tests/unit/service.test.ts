@@ -86,4 +86,99 @@ describe("variable service", () => {
     expect(response.status).toBe("ok");
     expect(response.value).toEqual({ title: "ship", done: true });
   });
+
+  it("hides expired variables and cleans them lazily", async () => {
+    const dir = tempDir();
+    const projectStore = new JsonVariableStore(path.join(dir, "project.json"));
+    const userStore = new JsonVariableStore(path.join(dir, "user.json"));
+    const service = new VariableService({ project: projectStore, user: userStore });
+    await service.set("session.temp", "gone", "project", "2000-01-01T00:00:00Z");
+
+    const response = await service.get("session.temp", "project");
+    const list = await service.list("project");
+
+    expect(response.status).toBe("not_found");
+    expect(await projectStore.get("session.temp")).toBeNull();
+    expect(list.value).toMatchObject({ scope: "project", items: [] });
+  });
+
+  it("does not patch expired variables", async () => {
+    const dir = tempDir();
+    const projectStore = new JsonVariableStore(path.join(dir, "project.json"));
+    const userStore = new JsonVariableStore(path.join(dir, "user.json"));
+    const service = new VariableService({ project: projectStore, user: userStore });
+    await service.set("session.temp", { done: false }, "project", "2000-01-01T00:00:00Z");
+
+    const response = await service.patch("session.temp", { done: true }, "project");
+
+    expect(response.status).toBe("not_found");
+    expect(await projectStore.get("session.temp")).toBeNull();
+  });
+
+  it("supports compare-and-set by revision", async () => {
+    const dir = tempDir();
+    const projectStore = new JsonVariableStore(path.join(dir, "project.json"));
+    const userStore = new JsonVariableStore(path.join(dir, "user.json"));
+    const service = new VariableService({ project: projectStore, user: userStore });
+    await service.set("project.goal", "ship", "project");
+
+    const conflict = await service.setIfVersion("project.goal", "oops", "project", 99);
+    const updated = await service.setIfVersion("project.goal", "done", "project", 1);
+
+    expect(conflict.status).toBe("error");
+    expect(conflict.message).toContain("Version conflict");
+    expect(updated.status).toBe("ok");
+    expect((await projectStore.get("project.goal"))?.revision).toBe(2);
+  });
+
+  it("supports increment and array helpers", async () => {
+    const dir = tempDir();
+    const projectStore = new JsonVariableStore(path.join(dir, "project.json"));
+    const userStore = new JsonVariableStore(path.join(dir, "user.json"));
+    const service = new VariableService({ project: projectStore, user: userStore });
+
+    const incremented = await service.increment("session.counter", 2, "project");
+    await service.append("session.items", "a", "project");
+    await service.append("session.items", "b", "project");
+    const removed = await service.removeFromArray("session.items", "a", "project");
+
+    expect(incremented.value).toBe(2);
+    expect(removed.value).toEqual(["b"]);
+  });
+
+  it("filters variables by namespace owner and tag", async () => {
+    const dir = tempDir();
+    const projectStore = new JsonVariableStore(path.join(dir, "project.json"));
+    const userStore = new JsonVariableStore(path.join(dir, "user.json"));
+    const service = new VariableService({ project: projectStore, user: userStore });
+    await service.set("task.one", "x", "project", null, {
+      namespace: "agent",
+      owner: "codex",
+      tags: ["active"],
+    });
+    await service.set("task.two", "y", "project", null, { namespace: "other" });
+
+    const response = await service.listFiltered("project", {
+      namespace: "agent",
+      owner: "codex",
+      tag: "active",
+    });
+
+    expect(response.value).toMatchObject({
+      scope: "project",
+      items: [{ key: "task.one", value: "x", namespace: "agent", owner: "codex", tags: ["active"] }],
+    });
+  });
+
+  it("blocks secret-like values by default", async () => {
+    const dir = tempDir();
+    const projectStore = new JsonVariableStore(path.join(dir, "project.json"));
+    const userStore = new JsonVariableStore(path.join(dir, "user.json"));
+    const service = new VariableService({ project: projectStore, user: userStore });
+
+    const response = await service.set("openai.api_key", "sk-proj-not-real-value", "project");
+
+    expect(response.status).toBe("error");
+    expect(response.message).toContain("looks like a secret");
+  });
 });

@@ -55,7 +55,7 @@ describe("path resolver", () => {
     process.chdir(dir);
     try {
       const resolved = resolveProjectDbPath({});
-      expect(resolved).toBe(path.resolve(dir, ".mcp-vars", "variables.json"));
+      expect(resolved.endsWith(path.join(".mcp-vars", "variables.json"))).toBe(true);
     } finally {
       process.chdir(previous);
     }

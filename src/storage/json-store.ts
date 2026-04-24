@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-import { JSONValue, VariableRecord, VariableSetItem } from "../domain/models";
+import { JSONValue, VariableRecord, VariableSetItem, VariableSetOptions } from "../domain/models";
 import { VariableStorageError } from "../domain/errors";
 import { VariableStore } from "./store";
 
@@ -31,7 +31,7 @@ export class JsonVariableStore implements VariableStore {
   async set(
     key: string,
     value: JSONValue,
-    expiresAt: string | null = null,
+    options: VariableSetOptions = {},
   ): Promise<VariableRecord> {
     const state = this.loadState();
     const now = new Date().toISOString();
@@ -39,9 +39,13 @@ export class JsonVariableStore implements VariableStore {
     const record: VariableRecord = {
       key,
       value,
-      expiresAt,
+      expiresAt: options.expiresAt ?? null,
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
+      revision: (existing?.revision ?? 0) + 1,
+      namespace: options.namespace ?? existing?.namespace ?? "shared",
+      owner: options.owner ?? existing?.owner ?? null,
+      tags: [...(options.tags ?? existing?.tags ?? [])],
     };
 
     state.records[key] = record;
@@ -71,7 +75,7 @@ export class JsonVariableStore implements VariableStore {
   async bulkSet(items: VariableSetItem[]): Promise<VariableRecord[]> {
     const records: VariableRecord[] = [];
     for (const item of items) {
-      records.push(await this.set(item.key, item.value, item.expiresAt ?? null));
+      records.push(await this.set(item.key, item.value, item));
     }
     return records;
   }
@@ -108,11 +112,30 @@ export class JsonVariableStore implements VariableStore {
         expiresAt: null,
         createdAt: now,
         updatedAt: now,
+        revision: 1,
+        namespace: "shared",
+        owner: null,
+        tags: [],
       };
     }
 
     this.writeState(nextState);
     return Object.fromEntries(Object.entries(nextState.records).map(([key, record]) => [key, record.value]));
+  }
+
+  async cleanupExpired(now: Date = new Date()): Promise<string[]> {
+    const state = this.loadState();
+    const deleted: string[] = [];
+    for (const [key, record] of Object.entries(state.records)) {
+      if (isExpired(record, now)) {
+        delete state.records[key];
+        deleted.push(key);
+      }
+    }
+    if (deleted.length > 0) {
+      this.writeState(state);
+    }
+    return deleted.sort((left, right) => left.localeCompare(right));
   }
 
   private loadState(): PersistedState {
@@ -161,4 +184,8 @@ export class JsonVariableStore implements VariableStore {
       throw new VariableStorageError(`Failed to write storage file ${this.filePath}: ${String(error)}`);
     }
   }
+}
+
+function isExpired(record: VariableRecord, now: Date): boolean {
+  return record.expiresAt != null && new Date(record.expiresAt).getTime() <= now.getTime();
 }
